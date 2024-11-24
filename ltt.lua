@@ -1,4 +1,5 @@
 #!/usr/bin/env lua
+
 local stdout_display = require('./stdout')
 local stdin_input = require('./stdin')
 local player = require('./player')
@@ -88,7 +89,7 @@ end
 --]]
 game.ask_player_move = function(self)
   self.display.ask_move()
-  local row, col = self.current_player:get_move()
+  local row, col = self.current_player:get_move(self.current_player.symbol)
 
   if not self.board:validate_move(row, col) then
     self.display.invalid_move()
@@ -108,7 +109,7 @@ game.player_turn = function(self)
     move = game:ask_player_move()
   end
 
-  self.board:update(move, self.current_player.symbol)
+  self.board:update(move.row, move.col, self.current_player.symbol)
 end
 
 --[[

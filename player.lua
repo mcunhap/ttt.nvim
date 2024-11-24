@@ -22,7 +22,7 @@ end
 -- Method to get the move from the current player
 --]]
 player.get_move = function(self)
-  return self.input:get_move()
+  return self.input:get_move(self.symbol)
 end
 
 return player

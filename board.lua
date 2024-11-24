@@ -15,15 +15,17 @@ board.new = function(self, b)
     }
   end
 
-  b.move = {
-    count = 0,
-    last = { row = nil, col = nil },
-    -- TODO: make it generic for any board size
-    row_ctrl = { 0, 0, 0 },
-    col_ctrl = { 0, 0, 0 },
-    diag_ctrl = { 0 },
-    anti_diag_ctrl = { 0 },
-  }
+  if not b.move then
+    b.move = {
+      count = 0,
+      last = { row = nil, col = nil },
+      -- TODO: make it generic for any board size
+      row_ctrl = { 0, 0, 0 },
+      col_ctrl = { 0, 0, 0 },
+      diag_ctrl = { 0 },
+      anti_diag_ctrl = { 0 },
+    }
+  end
 
   setmetatable(b, self)
   self.__index = self
@@ -119,11 +121,11 @@ end
 --[[
 -- Method to update the game board and auxiliar data
 --]]
-board.update = function(self, move, symbol)
-  self:update_last_move(move.row, move.col)
+board.update = function(self, row, col, symbol)
+  self:update_last_move(row, col)
   self:update_move_count()
-  self:update_move_ctrl(move.row, move.col, symbol)
-  self:update_cells(move.row, move.col, symbol)
+  self:update_move_ctrl(row, col, symbol)
+  self:update_cells(row, col, symbol)
 end
 
 return board
