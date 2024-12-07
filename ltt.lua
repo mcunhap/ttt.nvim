@@ -62,13 +62,13 @@ local game = {
 -- Method to verify if game is over by draw or win
 --]]
 game.is_over = function(self)
-  self.draw = self.board:is_draw()
-  if self.draw then return true end
-
   if self.board:has_winner(self.current_player.symbol) then
     self.winner = self.current_player
     return true
   end
+
+  self.draw = self.board:is_draw()
+  if self.draw then return true end
 
   return false
 end

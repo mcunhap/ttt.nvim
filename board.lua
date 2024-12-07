@@ -39,7 +39,7 @@ end
 -- Method to verify if the board is a draw
 -- ]]
 board.is_draw = function(self)
-  return self.move_count == self.size * self.size
+  return self.move.count == self.size * self.size
 end
 
 --[[
@@ -110,8 +110,6 @@ end
 -- Method to update the game board and auxiliar data
 --]]
 board.update = function(self, row, col, symbol)
-  self:save_last_state()
-
   -- update last move
   self.move.last.row = row
   self.move.last.col = col
@@ -123,46 +121,6 @@ board.update = function(self, row, col, symbol)
   self.cells[row][col] = symbol
 
   self:update_move_ctrl(row, col, symbol)
-end
-
-board.save_last_state = function(self)
-  self.last_state = {
-    cells = self.cells,
-    move = {
-      count = self.move.count,
-      last = { row = self.move.last.row, col = self.move.last.col },
-      row_ctrl = { self.move.row_ctrl[1], self.move.row_ctrl[2], self.move.row_ctrl[3] },
-      col_ctrl = { self.move.col_ctrl[1], self.move.col_ctrl[2], self.move.col_ctrl[3] },
-      diag_ctrl = { self.move.diag_ctrl[1] },
-      anti_diag_ctrl = { self.move.anti_diag_ctrl[1] }
-    }
-  }
-end
-
-board.recovery_last_state = function(self)
-  self.cells = self.last_state.cells
-  self.move = {
-    count = self.last_state.move.count,
-    last = { row = self.last_state.move.last.row, col = self.last_state.move.last.col },
-    row_ctrl = { self.last_state.move.row_ctrl[1], self.last_state.move.row_ctrl[2], self.last_state.move.row_ctrl[3] },
-    col_ctrl = { self.last_state.move.col_ctrl[1], self.last_state.move.col_ctrl[2], self.last_state.move.col_ctrl[3] },
-    diag_ctrl = { self.last_state.move.diag_ctrl[1] },
-    anti_diag_ctrl = { self.last_state.move.anti_diag_ctrl[1] }
-  }
-end
-
-board.stats = function(self)
-  print("Move count: " .. self.move.count)
-  print("Last move: " .. self.move.last.row .. ", " .. self.move.last.col)
-  print("Row control: " .. self.move.row_ctrl[1] .. ", " .. self.move.row_ctrl[2] .. ", " .. self.move.row_ctrl[3])
-  print("Col control: " .. self.move.col_ctrl[1] .. ", " .. self.move.col_ctrl[2] .. ", " .. self.move.col_ctrl[3])
-  print("Diag control: " .. self.move.diag_ctrl[1])
-  print("Anti diag control: " .. self.move.anti_diag_ctrl[1])
-  print("*****")
-  for i = 1, self.size do
-    print(table.concat(self.cells[i], " "))
-  end
-  print("*****")
 end
 
 return board
