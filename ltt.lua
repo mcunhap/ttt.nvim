@@ -88,11 +88,11 @@ end
 -- Method to ask the current player move
 --]]
 game.ask_player_move = function(self)
-  self.display.ask_move()
+  self.display:ask_move()
   local row, col = self.current_player:get_move(self.current_player.symbol)
 
   if not self.board:validate_move(row, col) then
-    self.display.invalid_move()
+    self.display:invalid_move(row, col)
     return nil
   end
 
@@ -127,18 +127,31 @@ end
 -- 4. Switch the current player
 -- 5. Clear the screen
 --]]
-game.display = stdout_display
-if not game.display then error("display methods not set") end
+play = function()
+  game.display = stdout_display
+  if not game.display then error("display methods not set") end
 
-while true do
-  game.display.show(game.current_player.symbol, game.board)
-  game:player_turn()
+  while true do
+    game.display:show(game.current_player.symbol, game.board)
+    game:player_turn()
 
-  if game:is_over() then
-    game.display.finish_screen(game.board, game.winner)
+    if game:is_over() then
+      game.display:finish_screen(game.board, game.winner)
 
-    break
+      break
+    end
+
+    game:switch_player()
   end
-
-  game:switch_player()
 end
+
+
+-------------------------------
+--- ^ GAME ^
+--- v TESTING STUFF v
+-------------------------------
+
+play()
+
+-- local buffer_display = require('buffer_display')
+-- buffer_display:show(player_1.symbol, b)
