@@ -18,7 +18,7 @@ board.new = function(self, b)
   if not b.move then
     b.move = {
       count = 0,
-      last = { row = nil, col = nil },
+      last = { row = -1, col = -1 },
       -- TODO: make it generic for any board size
       row_ctrl = { 0, 0, 0 },
       col_ctrl = { 0, 0, 0 },
@@ -26,6 +26,8 @@ board.new = function(self, b)
       anti_diag_ctrl = { 0 },
     }
   end
+
+  b.last_state = {}
 
   setmetatable(b, self)
   self.__index = self
@@ -80,13 +82,6 @@ board.update_last_move = function(self, row, col)
 end
 
 --[[
--- Method to update the move count
---]]
-board.update_move_count = function(self)
-  self.move.count = self.move.count + 1
-end
-
---[[
 -- Method to update the move control maps
 -- The control maps are used to check if the current player won the game
 -- by checking the rows, columns, diagonal and anti-diagonal
@@ -112,20 +107,62 @@ board.update_move_ctrl = function(self, row, col, symbol)
 end
 
 --[[
--- Method to update the board cells
---]]
-board.update_cells = function(self, row, col, symbol)
-  self.cells[row][col] = symbol
-end
-
---[[
 -- Method to update the game board and auxiliar data
 --]]
 board.update = function(self, row, col, symbol)
-  self:update_last_move(row, col)
-  self:update_move_count()
+  self:save_last_state()
+
+  -- update last move
+  self.move.last.row = row
+  self.move.last.col = col
+
+  -- update move count
+  self.move.count = self.move.count + 1
+
+  -- update cells
+  self.cells[row][col] = symbol
+
   self:update_move_ctrl(row, col, symbol)
-  self:update_cells(row, col, symbol)
+end
+
+board.save_last_state = function(self)
+  self.last_state = {
+    cells = self.cells,
+    move = {
+      count = self.move.count,
+      last = { row = self.move.last.row, col = self.move.last.col },
+      row_ctrl = { self.move.row_ctrl[1], self.move.row_ctrl[2], self.move.row_ctrl[3] },
+      col_ctrl = { self.move.col_ctrl[1], self.move.col_ctrl[2], self.move.col_ctrl[3] },
+      diag_ctrl = { self.move.diag_ctrl[1] },
+      anti_diag_ctrl = { self.move.anti_diag_ctrl[1] }
+    }
+  }
+end
+
+board.recovery_last_state = function(self)
+  self.cells = self.last_state.cells
+  self.move = {
+    count = self.last_state.move.count,
+    last = { row = self.last_state.move.last.row, col = self.last_state.move.last.col },
+    row_ctrl = { self.last_state.move.row_ctrl[1], self.last_state.move.row_ctrl[2], self.last_state.move.row_ctrl[3] },
+    col_ctrl = { self.last_state.move.col_ctrl[1], self.last_state.move.col_ctrl[2], self.last_state.move.col_ctrl[3] },
+    diag_ctrl = { self.last_state.move.diag_ctrl[1] },
+    anti_diag_ctrl = { self.last_state.move.anti_diag_ctrl[1] }
+  }
+end
+
+board.stats = function(self)
+  print("Move count: " .. self.move.count)
+  print("Last move: " .. self.move.last.row .. ", " .. self.move.last.col)
+  print("Row control: " .. self.move.row_ctrl[1] .. ", " .. self.move.row_ctrl[2] .. ", " .. self.move.row_ctrl[3])
+  print("Col control: " .. self.move.col_ctrl[1] .. ", " .. self.move.col_ctrl[2] .. ", " .. self.move.col_ctrl[3])
+  print("Diag control: " .. self.move.diag_ctrl[1])
+  print("Anti diag control: " .. self.move.anti_diag_ctrl[1])
+  print("*****")
+  for i = 1, self.size do
+    print(table.concat(self.cells[i], " "))
+  end
+  print("*****")
 end
 
 return board

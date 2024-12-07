@@ -1,10 +1,10 @@
 #!/usr/bin/env lua
 
-local stdout_display = require('./stdout')
-local stdin_input = require('./stdin')
-local player = require('./player')
-local ai = require('./ai')
-local board = require('./board')
+local stdout_display = require('stdout')
+local stdin_input = require('stdin')
+local player = require('player')
+local ai = require('ai')
+local board = require('board')
 
 -- -------------------
 -- Tic Tac Toe game
