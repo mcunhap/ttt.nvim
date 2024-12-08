@@ -151,7 +151,14 @@ end
 --- v TESTING STUFF v
 -------------------------------
 
-play()
+-- play()
 
--- local buffer_display = require('buffer_display')
+local buffer_display = require('buffer_display')
 -- buffer_display:show(player_1.symbol, b)
+
+local game_win = vim.api.nvim_open_win(buffer_display.game_buf, true, buffer_display.game_win_opts)
+local input_win = vim.api.nvim_open_win(buffer_display.input_buf, true, buffer_display.input_win_opts)
+
+vim.api.nvim_set_current_win(input_win)
+vim.api.nvim_buf_set_lines(buffer_display.game_buf, 0, -1, false, {"1 2 3", "4 5 6", "7 8 9"})
+vim.api.nvim_buf_set_lines(buffer_display.input_buf, 0, -1, false, {"Player x turn"})

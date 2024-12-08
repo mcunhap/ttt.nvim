@@ -2,8 +2,45 @@
 -- Table that implements display methods
 -- in vim buffer
 --]]
+local win_dimensions = {
+  game_display = {
+    width = 15,
+    height = 6
+  },
+  input_display = {
+    width = 20,
+    height = 2
+  }
+}
+
+local position_offset = {
+  row = vim.api.nvim_win_get_height(0) / 2 - (win_dimensions.game_display.height + win_dimensions.input_display.height) / 2,
+  col = vim.api.nvim_win_get_width(0) / 2 - (win_dimensions.game_display.width + win_dimensions.input_display.width) / 2,
+}
+
 local buffer_display = {
-  buf = vim.api.nvim_create_buf(false, true)
+  game_win_opts = {
+    relative = "editor",
+    width = win_dimensions.game_display.width,
+    height = win_dimensions.game_display.height,
+    row = position_offset.row,
+    col = position_offset.col,
+    style = "minimal",
+    border = "rounded"
+  },
+
+  input_win_opts = {
+    relative = "editor",
+    width = win_dimensions.input_display.width,
+    height = win_dimensions.input_display.height,
+    row = position_offset.row,
+    col = position_offset.col + win_dimensions.game_display.width + 2,
+    style = "minimal",
+    border = "rounded"
+  },
+
+  game_buf = vim.api.nvim_create_buf(false, true),
+  input_buf = vim.api.nvim_create_buf(false, true)
 }
 
 --[[
@@ -47,14 +84,27 @@ end
 -- Method to display the game state
 --]]
 buffer_display.show = function(self, current_player, b)
-  vim.api.nvim_open_win(self.buf, true, {
+  game_win_opts = {
     relative = "editor",
-    width = 100,
-    height = 40,
-    row = 10,
-    col = 10,
-    style = "minimal"
-  })
+    width = 15,
+    height = 6,
+    row = 5,
+    col = 15,
+    style = "minimal",
+    border = "rounded"
+  }
+  game_win = vim.api.nvim_open_win(self.buf, true, game_win_opts)
+
+  input_win_opts = {
+    relative = "editor",
+    width = 20,
+    height = 2,
+    row = 5,
+    col = 15,
+    style = "minimal",
+    border = "rounded"
+  }
+  input_win = vim.api.nvim_open_win(self.buf, true, input_win_opts)
 
   self:_clear()
   self:_board(b)
