@@ -120,57 +120,21 @@ ui.set_game_keymaps = function(self, keymaps)
 end
 
 --[[
--- Method to get the cursor position
+-- Method to get valid ui position
 --]]
-ui.get_cursor = function(self)
-  return vim.api.nvim_win_get_cursor(0)
-end
-
---[[
--- Method to verify if the cursor is in a valid board position
---]]
-ui.cursor_in_valid_board_position = function(self, cursor)
-  -- TODO: make it valid rows and cols correctly
-  -- when adjust board position configuration
-  -- now its hardcoded for board with upper left position
-  -- in row 1 and col 0 (remember that cursor is (1,0)-indexed)
-  local valid_rows = {
-    [1] = true,
-    [2] = true,
-    [3] = true,
-  }
-
-  local valid_cols = {
-    [0] = true,
-    [2] = true,
-    [4] = true,
-  }
-
-  local row, col = unpack(cursor)
-  return valid_rows[row] and valid_cols[col]
-end
-
---[[
--- Method to get the character under the cursor
---]]
-ui.get_character_under_cursor = function(self, cursor)
-  local row, col = unpack(cursor)
-  return vim.api.nvim_buf_get_text(self.board_buf, row - 1, col, row - 1, col + 1, {})[1]
-end
-
---[[
--- Method to convert cursor position to board position
--- Board can be placed in custom position inside a buffer
--- so we need to map which cursor position is related to which board position
---]]
-ui.convert_cursor_to_board_position = function(self, cursor)
-  local row, col = unpack(cursor)
+ui.get_valid_position = function(self)
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 
   -- remember that cursor position is (1,0)-indexed
   -- this should be more "inteligent", but it will work for now
   -- since we have only one board configuration
   -- When we evolve board position configuration, we should
   -- make this more generic
+  --
+  -- make it valid rows and cols correctly
+  -- when adjust board position configuration
+  -- now its hardcoded for board with upper left position
+  -- in row 1 and col 0 (remember that cursor is (1,0)-indexed)
   local cursor_to_board = {
     row = {
       [1] = 1,
@@ -184,7 +148,30 @@ ui.convert_cursor_to_board_position = function(self, cursor)
     }
   }
 
-  return cursor_to_board.row[row], cursor_to_board.col[col]
+  if not cursor_to_board.row[row] or not cursor_to_board.col[col] then
+    self:display_error("Invalid board position")
+    return {
+      row = nil,
+      col = nil,
+      error = true
+    }
+  end
+
+  local char = vim.api.nvim_buf_get_text(self.board_buf, row - 1, col, row - 1, col + 1, {})[1]
+  if char ~= "-" then
+    self:display_error("Invalid move")
+    return {
+      row = nil,
+      col = nil,
+      error = true
+    }
+  end
+
+  return {
+    row = cursor_to_board.row[row],
+    col = cursor_to_board.col[col],
+    error = false
+  }
 end
 
 --[[

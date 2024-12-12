@@ -87,19 +87,10 @@ end
 -- game state and the UI.
 --]]
 local make_move = function()
-  local cursor = M.ui:get_cursor()
-  if not M.ui:cursor_in_valid_board_position(cursor) then
-    M.ui:display_error("Invalid board position")
-    return
-  end
+  local position = M.ui:get_valid_position()
+  if position.error then return end
 
-  local char = M.ui:get_character_under_cursor(cursor)
-  if char ~= "-" then
-    M.ui:display_error("Invalid move")
-    return
-  end
-
-  local row, col = M.ui:convert_cursor_to_board_position(cursor)
+  local row, col = position.row, position.col
 
   M.board:update(row, col, M.current_player.symbol)
   if M:_is_over() then
@@ -134,5 +125,4 @@ M.start = function(self)
   self.ui:draw(self.current_player.symbol, self.board)
 end
 
-M:start()
--- return M
+return M
