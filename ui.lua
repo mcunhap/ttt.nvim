@@ -85,7 +85,30 @@ end
 -- Method to open the game window
 --]]
 ui.open_win = function(self)
+  -- if vim.api.nvim_buf_is_valid(self.board_buf) then
+  --   print("Board buffer is not valid!")
+  --   return
+  -- end
+
   self.board_win = vim.api.nvim_open_win(self.board_buf, true, board_win_opts)
+end
+
+--[[
+-- Method to close the game window
+--]]
+ui.close_win = function(self)
+  vim.api.nvim_win_close(self.board_win, true)
+end
+
+--[[
+-- Method to hide the game window
+--]]
+ui.hide_win = function(self)
+  vim.api.nvim_win_hide(self.board_win)
+end
+
+ui.delete_buffer = function(self)
+  vim.api.nvim_buf_delete(self.board_buf, {force = true})
 end
 
 --[[

@@ -5,26 +5,24 @@
 --]]
 local board = {}
 
-board.new = function(self, b)
-  if not b.size or not b.cells then
-    b.size = 3
-    b.cells = {
-      {"-", "-", "-"},
-      {"-", "-", "-"},
-      {"-", "-", "-"}
-    }
-  end
+board.new = function(self)
+  local b = {}
 
-  if not b.move then
-    b.move = {
-      count = 0,
-      last = { row = -1, col = -1 },
-      row_ctrl = { 0, 0, 0 },
-      col_ctrl = { 0, 0, 0 },
-      diag_ctrl = { 0 },
-      anti_diag_ctrl = { 0 },
-    }
-  end
+  b.size = 3
+  b.cells = {
+    {"-", "-", "-"},
+    {"-", "-", "-"},
+    {"-", "-", "-"}
+  }
+
+  b.move = {
+    count = 0,
+    last = { row = -1, col = -1 },
+    row_ctrl = { 0, 0, 0 },
+    col_ctrl = { 0, 0, 0 },
+    diag_ctrl = { 0 },
+    anti_diag_ctrl = { 0 },
+  }
 
   setmetatable(b, self)
   self.__index = self

@@ -8,21 +8,9 @@ local board = require('board')
 -- -------------------
 
 --[[
--- Board initialization
---]]
-local b = board:new({
-  size = 3,
-  cells = {
-    {"-", "-", "-"},
-    {"-", "-", "-"},
-    {"-", "-", "-"}
-  }
-})
-
---[[
 -- AI input
 --]]
-local ai_input = ai:new(b)
+local ai_input = ai:new(board:new())
 
 --[[
 -- Players representation in the game
@@ -32,28 +20,34 @@ local player_1 = player:new("x", ui)
 local player_2 = player:new("o", ai_input)
 
 --[[
--- Table that holds the game state
--- board: the game board
--- current_player: the player that is currently playing
--- move: the move information
---  count: the number of moves made
---  last: the last move made
---  row_ctrl: the control map for the rows
---  col_ctrl: the control map for the columns
---  diag_ctrl: the control map for the diagonal
---  anti_diag_ctrl: the control map for the anti-diagonal
--- ui: the ui methods
--- input: the input methods
+-- Table that holds the module
 --]]
-local M = {
-  board = b,
-  current_player = player_1,
+local M = {}
 
-  ui = ui:new(),
+--[[
+-- Method to create a new game
+-- Game contains:
+-- - board: the game board
+-- - current_player: the player that is playing
+-- - ui: the ui module
+-- - winner: the player that won the game
+-- - draw: boolean that indicates if the game is a draw
+--]]
+M.new = function(self)
+  local o = {
+    board = board:new(),
+    current_player = player_1,
 
-  winner = nil,
-  draw = false
-}
+    ui = ui:new(),
+
+    winner = nil,
+    draw = false
+  }
+
+  setmetatable(o, self)
+  self.__index = self
+  return o
+end
 
 --[[
 -- Method to verify if game is over by draw or win
@@ -81,48 +75,39 @@ M._switch_player = function(self)
   end
 end
 
---[[
--- Method to make a move. It is called when the player
--- makes a move, and it is responsible to update the
--- game state and the UI.
---]]
-local make_move = function()
-  local position = M.ui:get_valid_position()
-  if position.error then return end
-
-  local row, col = position.row, position.col
-
-  M.board:update(row, col, M.current_player.symbol)
-  if M:_is_over() then
-    if M.winner then
-      M.ui:winner_screen(M.board, M.winner.symbol)
-      return
-    end
-
-    M.ui:draw_screen(M.board)
-    return
-  end
-  M:_switch_player()
-
-  M.ui:draw(M.current_player.symbol, M.board)
-end
-
---[[
--- Method to quit the game
---]]
-local quit = function()
-  vim.api.nvim_win_close(M.ui.board_win, true)
-end
-
 M.start = function(self)
-  self.ui:open_win()
+  local game = self:new()
+  game.ui:open_win()
 
-  self.ui:set_game_keymaps({
-    ["<CR>"] = make_move,
-    ["q"] = quit
+  game.ui:set_game_keymaps({
+    ["<CR>"] = function()
+      local position = game.ui:get_valid_position()
+      if position.error then return end
+
+      local row, col = position.row, position.col
+
+      game.board:update(row, col, game.current_player.symbol)
+      if game:_is_over() then
+        if game.winner then
+          game.ui:winner_screen(game.board, game.winner.symbol)
+          return
+        end
+
+        game.ui:draw_screen(game.board)
+        return
+      end
+      game:_switch_player()
+
+      game.ui:draw(game.current_player.symbol, game.board)
+    end,
+    ["q"] = function()
+      game.ui:close_win()
+      game.ui:delete_buffer()
+    end,
   })
 
-  self.ui:draw(self.current_player.symbol, self.board)
+  game.ui:draw(game.current_player.symbol, game.board)
 end
 
+-- M:start()
 return M
