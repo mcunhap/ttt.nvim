@@ -75,6 +75,9 @@ M._switch_player = function(self)
   end
 end
 
+--[[
+-- Method to start the game
+--]]
 M.start = function(self)
   local game = self:new()
   game.ui:open_win()
@@ -109,5 +112,4 @@ M.start = function(self)
   game.ui:draw(game.current_player.symbol, game.board)
 end
 
--- M:start()
 return M
