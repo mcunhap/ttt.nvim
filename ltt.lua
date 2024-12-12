@@ -45,7 +45,7 @@ local player_2 = player:new("o", ai_input)
 -- ui: the ui methods
 -- input: the input methods
 --]]
-local game = {
+local M = {
   board = b,
   current_player = player_1,
 
@@ -58,7 +58,7 @@ local game = {
 --[[
 -- Method to verify if game is over by draw or win
 --]]
-game.is_over = function(self)
+M._is_over = function(self)
   if self.board:has_winner(self.current_player.symbol) then
     self.winner = self.current_player
     return true
@@ -73,7 +73,7 @@ end
 --[[
 -- Method to switch current player
 --]]
-game.switch_player = function(self)
+M._switch_player = function(self)
   if self.current_player == player_1 then
     self.current_player = player_2
   else
@@ -81,56 +81,58 @@ game.switch_player = function(self)
   end
 end
 
--- new game: create a new game with initial configuration displayed in a new game buffer
---    we should display the board and current player
--- make move: walk in buffer row and collumns and press some key to make a move in that position
---    we should validate the move: valid board position and empty cell
--- update board: update the board with the move made by the player
--- check winner: check if the current player won the game
--- check draw: check if the game is a draw
--- switch player: switch the current player if the game is not over
+--[[
+-- Method to make a move. It is called when the player
+-- makes a move, and it is responsible to update the
+-- game state and the UI.
+--]]
+local make_move = function()
+  local cursor = M.ui:get_cursor()
+  if not M.ui:cursor_in_valid_board_position(cursor) then
+    M.ui:display_error("Invalid board position")
+    return
+  end
 
-game.start = function(self)
-  game.ui:open_win()
+  local char = M.ui:get_character_under_cursor(cursor)
+  if char ~= "-" then
+    M.ui:display_error("Invalid move")
+    return
+  end
 
-  game.ui:set_game_keymaps({
-    ["<CR>"] = function()
-      local cursor = game.ui:get_cursor()
-      if not game.ui:cursor_in_valid_board_position(cursor) then
-        game.ui:display_error("Invalid board position")
-        return
-      end
+  local row, col = M.ui:convert_cursor_to_board_position(cursor)
 
-      local char = game.ui:get_character_under_cursor(cursor)
-      if char ~= "-" then
-        game.ui:display_error("Invalid move")
-        return
-      end
-
-      local row, col = game.ui:convert_cursor_to_board_position(cursor)
-
-      game.board:update(row, col, game.current_player.symbol)
-      game:switch_player()
-      if game:is_over() then
-        if game.winner then
-          game.ui:winner_screen(game.winner.symbol)
-          return
-        else
-          print("It's a draw!")
-        end
-        return
-      end
-
-      game.ui:draw(game.current_player.symbol, game.board)
-
-      -- game.current_player:make_move(game.board)
-      -- game.ui:draw(game.current_player.symbol, game.board)
-      -- game:switch_player()
+  M.board:update(row, col, M.current_player.symbol)
+  if M:_is_over() then
+    if M.winner then
+      M.ui:winner_screen(M.board, M.winner.symbol)
+      return
     end
+
+    M.ui:draw_screen(M.board)
+    return
+  end
+  M:_switch_player()
+
+  M.ui:draw(M.current_player.symbol, M.board)
+end
+
+--[[
+-- Method to quit the game
+--]]
+local quit = function()
+  vim.api.nvim_win_close(M.ui.board_win, true)
+end
+
+M.start = function(self)
+  self.ui:open_win()
+
+  self.ui:set_game_keymaps({
+    ["<CR>"] = make_move,
+    ["q"] = quit
   })
 
   self.ui:draw(self.current_player.symbol, self.board)
 end
 
-game:start()
--- return game
+M:start()
+-- return M

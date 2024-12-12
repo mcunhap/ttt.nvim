@@ -3,7 +3,7 @@
 --]]
 local win_dimensions = {
   width = 15,
-  height = 6
+  height = 4
 }
 
 --[[
@@ -195,6 +195,16 @@ ui.winner_screen = function(self, b, winner)
   self:_board(b)
 
   vim.api.nvim_buf_set_lines(self.board_buf, board_position.row + b.size + 1, -1, false, {"Player " .. winner .. " wins!"})
+end
+
+--[[
+-- Method to display draw screen
+--]]
+ui.draw_screen = function(self, b)
+  self:_clear()
+  self:_board(b)
+
+  vim.api.nvim_buf_set_lines(self.board_buf, board_position.row + b.size + 1, -1, false, {"It's a draw!"})
 end
 
 --[[
