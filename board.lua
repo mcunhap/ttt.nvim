@@ -19,15 +19,12 @@ board.new = function(self, b)
     b.move = {
       count = 0,
       last = { row = -1, col = -1 },
-      -- TODO: make it generic for any board size
       row_ctrl = { 0, 0, 0 },
       col_ctrl = { 0, 0, 0 },
       diag_ctrl = { 0 },
       anti_diag_ctrl = { 0 },
     }
   end
-
-  b.last_state = {}
 
   setmetatable(b, self)
   self.__index = self

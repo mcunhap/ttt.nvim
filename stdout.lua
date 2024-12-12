@@ -65,4 +65,12 @@ stdout_display.finish_screen = function(self, b, winner)
   end
 end
 
+--[[
+-- Method to get the move from the current player
+--]]
+stdout_display.get_move = function(self, symbol)
+  local row, col = io.read("*n", "*n")
+  return row, col
+end
+
 return stdout_display
