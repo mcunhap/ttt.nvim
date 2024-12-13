@@ -1,5 +1,4 @@
 local ui = require('ttt.ui')
-local player = require('ttt.player')
 local board = require('ttt.board')
 
 -- -------------------
@@ -10,8 +9,8 @@ local board = require('ttt.board')
 -- Players representation in the game
 -- player_1 always starts the game
 --]]
-local player_1 = player:new("x", ui)
-local player_2 = player:new("o", ui)
+local player_1 = 'x'
+local player_2 = 'o'
 
 --[[
 -- Table that holds the module
@@ -47,7 +46,7 @@ end
 -- Method to verify if game is over by draw or win
 --]]
 M._is_over = function(self)
-  if self.board:has_winner(self.current_player.symbol) then
+  if self.board:has_winner(self.current_player) then
     self.winner = self.current_player
     return true
   end
@@ -85,10 +84,10 @@ M.start = function(self)
 
       local row, col = position.row, position.col
 
-      game.board:update(row, col, game.current_player.symbol)
+      game.board:update(row, col, game.current_player)
       if game:_is_over() then
         if game.winner then
-          game.ui:winner_screen(game.board, game.winner.symbol)
+          game.ui:winner_screen(game.board, game.winner)
           return
         end
 
@@ -97,7 +96,7 @@ M.start = function(self)
       end
       game:_switch_player()
 
-      game.ui:draw(game.current_player.symbol, game.board)
+      game.ui:draw(game.current_player, game.board)
     end,
     ["q"] = function()
       game.ui:close_win()
@@ -105,7 +104,7 @@ M.start = function(self)
     end,
   })
 
-  game.ui:draw(game.current_player.symbol, game.board)
+  game.ui:draw(game.current_player, game.board)
 end
 
 return M
