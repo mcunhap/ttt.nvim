@@ -1,23 +1,17 @@
-local ui = require('ui')
-local player = require('player')
-local ai = require('ai')
-local board = require('board')
+local ui = require('ttt.ui')
+local player = require('ttt.player')
+local board = require('ttt.board')
 
 -- -------------------
 -- Tic Tac Toe game
 -- -------------------
 
 --[[
--- AI input
---]]
-local ai_input = ai:new(board:new())
-
---[[
 -- Players representation in the game
 -- player_1 always starts the game
 --]]
 local player_1 = player:new("x", ui)
-local player_2 = player:new("o", ai_input)
+local player_2 = player:new("o", ui)
 
 --[[
 -- Table that holds the module
@@ -27,11 +21,11 @@ local M = {}
 --[[
 -- Method to create a new game
 -- Game contains:
--- - board: the game board
--- - current_player: the player that is playing
--- - ui: the ui module
--- - winner: the player that won the game
--- - draw: boolean that indicates if the game is a draw
+-- @board: the game board
+-- @current_player: the player that is playing
+-- @ui: the ui module
+-- @winner: the player that won the game
+-- @draw: boolean that indicates if the game is a draw
 --]]
 M.new = function(self)
   local o = {
