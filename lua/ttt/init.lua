@@ -78,6 +78,8 @@ M.start = function(self)
 
   game.ui:set_game_keymaps({
     ["<CR>"] = function()
+      if game:_is_over() then return end
+
       local position = game.ui:get_valid_position()
       if position.error then return end
 
