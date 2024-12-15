@@ -1,7 +1,14 @@
-local display = require("./stdout")
-
+--[[
+-- Table that holds the ai module
+--]]
 local ai = {}
 
+--[[
+-- Method to create a new ai for a given board
+--
+-- @board - the board to play on
+-- @return - the new ai
+--]]
 ai.new = function(self, board)
   local a = {
     board = board
@@ -11,6 +18,12 @@ ai.new = function(self, board)
   return a
 end
 
+--[[
+-- Method to check if the game is a draw
+--
+-- @board - the board to check
+-- @return - boolean indicating if the game is a draw
+--]]
 local is_draw = function(board)
   for i = 1, board.size do
     for j = 1, board.size do
@@ -23,6 +36,13 @@ local is_draw = function(board)
   return true
 end
 
+--[[
+-- Method to check if the game has a winner
+--
+-- @board - the board to check
+-- @symbol - the symbol to check for
+-- @return - boolean indicating if the game has a winner
+--]]
 local has_winner = function(board, symbol)
   for i = 1, board.size do
     if board.cells[i][1] == board.cells[i][2] and board.cells[i][2] == board.cells[i][3] and board.cells[i][1] == symbol then
@@ -47,7 +67,14 @@ local has_winner = function(board, symbol)
   return false
 end
 
-
+--[[
+-- Method to calculate the minimax score
+--
+-- @board - the board to calculate the score for
+-- @symbol - the symbol to calculate the score for
+-- @is_max - boolean to indicate if the current player is the maximizer
+-- @return - the score
+--]]
 local function minimax(board, symbol, is_max)
   if is_draw(board) then return 0 end
   if has_winner(board, 'o') then return 1 end
@@ -92,6 +119,12 @@ local function minimax(board, symbol, is_max)
   return best_score
 end
 
+--[[
+-- Method to get the move for the ai
+--
+-- @symbol - the symbol to get the move for
+-- @return - the move row and the move col
+--]]
 ai.get_move = function(self, symbol)
   local best_score = -2
   local best_move = { -1, -1 }

@@ -1,5 +1,6 @@
 local ui = require('ttt.ui')
 local board = require('ttt.board')
+local ai = require('ttt.ai')
 
 -- -------------------
 -- Tic Tac Toe game
@@ -19,12 +20,14 @@ local M = {}
 
 --[[
 -- Method to create a new game
+--
 -- Game contains:
 -- @board: the game board
 -- @current_player: the player that is playing
 -- @ui: the ui module
 -- @winner: the player that won the game
 -- @draw: boolean that indicates if the game is a draw
+-- @return: the new game
 --]]
 M.new = function(self)
   local o = {
@@ -44,6 +47,8 @@ end
 
 --[[
 -- Method to verify if game is over by draw or win
+--
+-- @return: boolean indicating if the game is over
 --]]
 M._is_over = function(self)
   if self.board:has_winner(self.current_player) then
@@ -63,9 +68,50 @@ end
 M._switch_player = function(self)
   if self.current_player == player_1 then
     self.current_player = player_2
-  else
-    self.current_player = player_1
+    return
   end
+
+  self.current_player = player_1
+end
+
+--[[
+-- Method to verify if game is over
+-- and show the winner screen
+--
+-- @return: boolean indicating if the game is over
+--]]
+M._over = function(self)
+  if not self:_is_over() then return false end
+
+  if self.winner then
+    self.ui:winner_screen(self.board, self.winner)
+    return true
+  end
+
+  self.ui:draw_screen(self.board)
+  return true
+end
+
+--[[
+-- Method to handle player turn
+--]]
+M._player_turn = function(self)
+  local position = self.ui:get_valid_position()
+  if position.error then return end
+
+  local row, col = position.row, position.col
+
+  self.board:update(row, col, self.current_player)
+end
+
+--[[
+-- Method to handle ai turn
+--]]
+M._ai_turn = function(self)
+  local ai_module = ai:new(self.board)
+  local row, col = ai_module:get_move(self.current_player)
+
+  self.board:update(row, col, self.current_player)
 end
 
 --[[
@@ -79,24 +125,19 @@ M.start = function(self)
     ["<CR>"] = function()
       if game:_is_over() then return end
 
-      local position = game.ui:get_valid_position()
-      if position.error then return end
+      game:_player_turn(game)
+      if game:_over(game) then return end
+      game:_switch_player()
 
-      local row, col = position.row, position.col
-
-      game.board:update(row, col, game.current_player)
-      if game:_is_over() then
-        if game.winner then
-          game.ui:winner_screen(game.board, game.winner)
-          return
-        end
-
-        game.ui:draw_screen(game.board)
-        return
-      end
+      game:_ai_turn(game)
+      if game:_over(game) then return end
       game:_switch_player()
 
       game.ui:draw(game.current_player, game.board)
+    end,
+    ["<ESC>"] = function()
+      game.ui:close_win()
+      game.ui:delete_buffer()
     end,
     ["q"] = function()
       game.ui:close_win()

@@ -45,6 +45,13 @@ local board_win_opts = {
 --]]
 local ui = {}
 
+--[[
+-- Method to create a new ui instance
+-- UI contains:
+-- @board_buf: buffer to display the game board
+--
+-- @return: ui instance
+--]]
 ui.new = function(self)
   local board_buf = vim.api.nvim_create_buf(false, true)
 
@@ -67,6 +74,8 @@ end
 
 --[[
 -- Method to display the game board
+--
+-- @b: the game board
 --]]
 ui._board = function(self, b)
   for i = 1, b.size do
@@ -76,6 +85,9 @@ end
 
 --[[
 -- Method to notify the current player turn
+--
+-- @current_player: the current player
+-- @b: the game board
 --]]
 ui._player_turn = function(self, current_player, b)
   vim.api.nvim_buf_set_lines(self.board_buf, board_position.row + b.size + 1, -1, false, {"Player " .. current_player .. " turn"})
@@ -85,11 +97,6 @@ end
 -- Method to open the game window
 --]]
 ui.open_win = function(self)
-  -- if vim.api.nvim_buf_is_valid(self.board_buf) then
-  --   print("Board buffer is not valid!")
-  --   return
-  -- end
-
   self.board_win = vim.api.nvim_open_win(self.board_buf, true, board_win_opts)
 end
 
@@ -113,6 +120,8 @@ end
 
 --[[
 -- Method to display error
+--
+-- @message: the error message
 --]]
 ui.display_error = function(self, message)
   -- TODO: display message in board buffer
@@ -121,6 +130,9 @@ end
 
 --[[
 -- Method to draw the game state
+--
+-- @current_player: the current player
+-- @b: the game board
 --]]
 ui.draw = function(self, current_player, b)
   self:_clear()
@@ -130,6 +142,14 @@ end
 
 --[[
 -- Method to set keymaps for the game
+--
+-- @keymaps: the keymaps to be set
+--           keymaps is a table with the following format:
+--           {
+--            ["<key>"] = "<action>"
+--           }
+--           where <key> is the key to be mapped
+--           and <action> is the action to be performed
 --]]
 ui.set_game_keymaps = function(self, keymaps)
   for lhs, rhs in pairs(keymaps) do
@@ -144,6 +164,13 @@ end
 
 --[[
 -- Method to get valid ui position
+--
+-- @return: a table with the following format:
+--         {
+--           row: the row position
+--           col: the col position
+--           error: a boolean indicating if there was an error
+--         }
 --]]
 ui.get_valid_position = function(self)
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -199,6 +226,9 @@ end
 
 --[[
 -- Method to display winner screen
+--
+-- @b: the game board
+-- @winner: the winner player
 --]]
 ui.winner_screen = function(self, b, winner)
   self:_clear()
@@ -209,6 +239,8 @@ end
 
 --[[
 -- Method to display draw screen
+--
+-- @b: the game board
 --]]
 ui.draw_screen = function(self, b)
   self:_clear()
@@ -216,19 +248,5 @@ ui.draw_screen = function(self, b)
 
   vim.api.nvim_buf_set_lines(self.board_buf, board_position.row + b.size + 1, -1, false, {"It's a draw!"})
 end
-
---[[
--- Method to display finish screen
---]]
--- stdout_display.finish_screen = function(self, b, winner)
---   self:_clear()
---   self:_board(b)
-
---   if winner then
---     vim.api.nvim_out_write("Player " .. winner.symbol .. " wins!\n")
---   else
---     vim.api.nvim_out_write("It's a draw!\n")
---   end
--- end
 
 return ui

@@ -5,6 +5,11 @@
 --]]
 local board = {}
 
+--[[
+-- Method to create a new board
+--
+-- @return: the new board
+--]]
 board.new = function(self)
   local b = {}
 
@@ -32,6 +37,8 @@ end
 
 --[[
 -- Method to verify if the board is a draw
+--
+-- @return: boolean indicating if the board is a draw
 -- ]]
 board.is_draw = function(self)
   return self.move.count == self.size * self.size
@@ -41,6 +48,9 @@ end
 -- Method to verify if the board has a winner
 -- If we know the last move was made by the current player, we can
 -- check only the row, column and diagonal that the last move was made
+--
+-- @symbol: the symbol to check for
+-- @return: boolean indicating if the board has a winner
 --]]
 board.has_winner = function(self, symbol)
   local row = self.move.last.row
@@ -59,6 +69,10 @@ end
 
 --[[
 -- Method to validate the move
+--
+-- @row: the row of the move
+-- @col: the column of the move
+-- @return: boolean indicating if the move is valid
 --]]
 board.validate_move = function(self, row, col)
   if row <= 0 or row > self.size then return false end
@@ -70,6 +84,9 @@ end
 
 --[[
 -- Method to update the last move
+--
+-- @row: the row of the move
+-- @col: the column of the move
 --]]
 board.update_last_move = function(self, row, col)
   self.move.last.row = row
@@ -82,6 +99,11 @@ end
 -- by checking the rows, columns, diagonal and anti-diagonal
 -- The control maps are updated by adding 1 for player 1 and subtracting 1 for player 2
 -- When the control map value is equal to the board size, the player 1 wins
+--
+-- @row: the row of the move
+-- @col: the column of the move
+-- @symbol: the symbol of the player
+-- @return: boolean indicating if the move is valid
 --]]
 board.update_move_ctrl = function(self, row, col, symbol)
   local value = 1
@@ -103,6 +125,10 @@ end
 
 --[[
 -- Method to update the game board and auxiliar data
+--
+-- @row: the row of the move
+-- @col: the column of the move
+-- @symbol: the symbol of the player
 --]]
 board.update = function(self, row, col, symbol)
   -- update last move
