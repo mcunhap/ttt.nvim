@@ -1,17 +1,11 @@
 local ui = require('ttt.ui')
 local board = require('ttt.board')
 local ai = require('ttt.ai')
+local config = require('ttt.config')
 
 -- -------------------
 -- Tic Tac Toe game
 -- -------------------
-
---[[
--- Players representation in the game
--- player_1 always starts the game
---]]
-local player_1 = 'x'
-local player_2 = 'o'
 
 --[[
 -- Table that holds the module
@@ -32,7 +26,10 @@ local M = {}
 M.new = function(self)
   local o = {
     board = board:new(),
-    current_player = player_1,
+
+    player_1 = config.player_1_symbol,
+    player_2 = config.player_2_symbol,
+    current_player = config.player_1_symbol,
 
     ui = ui:new(),
 
@@ -66,12 +63,12 @@ end
 -- Method to switch current player
 --]]
 M._switch_player = function(self)
-  if self.current_player == player_1 then
-    self.current_player = player_2
+  if self.current_player == self.player_1 then
+    self.current_player = self.player_2
     return
   end
 
-  self.current_player = player_1
+  self.current_player = self.player_1
 end
 
 --[[
@@ -108,7 +105,9 @@ end
 -- Method to handle ai turn
 --]]
 M._ai_turn = function(self)
-  local ai_module = ai:new(self.board)
+  local ai_module = ai:new(self.board,
+                           self.current_player,
+                           self.current_player == self.player_1 and self.player_2 or self.player_1)
   local row, col = ai_module:get_move(self.current_player)
 
   self.board:update(row, col, self.current_player)

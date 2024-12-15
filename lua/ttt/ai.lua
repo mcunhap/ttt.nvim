@@ -1,3 +1,5 @@
+local config = require('ttt.config')
+
 --[[
 -- Table that holds the ai module
 --]]
@@ -9,9 +11,11 @@ local ai = {}
 -- @board - the board to play on
 -- @return - the new ai
 --]]
-ai.new = function(self, board)
+ai.new = function(self, board, symbol, opponent_symbol)
   local a = {
-    board = board
+    board = board,
+    symbol = symbol,
+    opponent_symbol = opponent_symbol
   }
   setmetatable(a, self)
   self.__index = self
@@ -75,10 +79,10 @@ end
 -- @is_max - boolean to indicate if the current player is the maximizer
 -- @return - the score
 --]]
-local function minimax(board, symbol, is_max)
+local function minimax(board, current_player, opponent, is_max)
   if is_draw(board) then return 0 end
-  if has_winner(board, 'o') then return 1 end
-  if has_winner(board, 'x') then return -1 end
+  if has_winner(board, config.player_2_symbol) then return 1 end
+  if has_winner(board, config.player_1_symbol) then return -1 end
 
   if is_max then
     local best_score = -2
@@ -86,8 +90,8 @@ local function minimax(board, symbol, is_max)
     for i = 1, board.size do
       for j = 1, board.size do
         if board:validate_move(i, j) then
-          board.cells[i][j] = symbol
-          local score = minimax(board, symbol == 'x' and 'o' or 'x', false)
+          board.cells[i][j] = current_player
+          local score = minimax(board, opponent, current_player, false)
           board.cells[i][j] = '-'
 
           if score > best_score then
@@ -105,8 +109,8 @@ local function minimax(board, symbol, is_max)
   for i = 1, board.size do
     for j = 1, board.size do
       if board:validate_move(i, j) then
-        board.cells[i][j] = symbol
-        local score = minimax(board, symbol == 'x' and 'o' or 'x', true)
+        board.cells[i][j] = current_player
+        local score = minimax(board, opponent, current_player, true)
         board.cells[i][j] = '-'
 
         if score < best_score then
@@ -122,18 +126,19 @@ end
 --[[
 -- Method to get the move for the ai
 --
--- @symbol - the symbol to get the move for
+-- @ai_symbol - the symbol ai is playing
+-- @human_symbol - the symbol human is playing
 -- @return - the move row and the move col
 --]]
-ai.get_move = function(self, symbol)
+ai.get_move = function(self)
   local best_score = -2
   local best_move = { -1, -1 }
 
   for i = 1, self.board.size do
     for j = 1, self.board.size do
       if self.board:validate_move(i, j) then
-        self.board.cells[i][j] = symbol
-        local score = minimax(self.board, symbol == 'x' and 'o' or 'x', false)
+        self.board.cells[i][j] = self.symbol
+        local score = minimax(self.board, self.opponent_symbol, self.symbol, false)
         self.board.cells[i][j] = '-'
 
         if score > best_score then
