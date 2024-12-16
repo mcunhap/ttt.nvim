@@ -3,7 +3,9 @@
 --]]
 local config = {
   player_1_symbol = 'x',
-  player_2_symbol = 'o'
+  player_2_symbol = 'o',
+
+  play_against_ai = true
 }
 
 return config

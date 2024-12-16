@@ -121,6 +121,7 @@ end
 M.start = function(self)
   local game = self:new()
   game.ui:open_win()
+  game.ui:draw(game.current_player, game.board)
 
   game.ui:set_game_keymaps({
     ["<CR>"] = function()
@@ -130,9 +131,11 @@ M.start = function(self)
       if error or game:_over(game) then return end
       game:_switch_player()
 
-      game:_ai_turn(game)
-      if game:_over(game) then return end
-      game:_switch_player()
+      if config.play_against_ai then
+        game:_ai_turn(game)
+        if game:_over(game) then return end
+        game:_switch_player()
+      end
 
       game.ui:draw(game.current_player, game.board)
     end,
@@ -145,8 +148,6 @@ M.start = function(self)
       game.ui:delete_buffer()
     end,
   })
-
-  game.ui:draw(game.current_player, game.board)
 end
 
 return M
