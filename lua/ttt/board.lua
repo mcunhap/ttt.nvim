@@ -1,4 +1,4 @@
-local config = require('ttt.config')
+local settings = require('ttt.settings').current
 
 --[[
 -- Table that holds the game board
@@ -59,7 +59,7 @@ board.has_winner = function(self, symbol)
   local col = self.move.last.col
   local winner_value = self.size
 
-  if symbol == config.player_2_symbol then
+  if symbol == settings.player_2_symbol then
     winner_value = -self.size
   end
 
@@ -109,7 +109,7 @@ end
 --]]
 board.update_move_ctrl = function(self, row, col, symbol)
   local value = 1
-  if symbol == config.player_2_symbol then
+  if symbol == settings.player_2_symbol then
     value = -1
   end
 

@@ -1,4 +1,4 @@
-local config = require('ttt.config')
+local settings = require('ttt.settings').current
 
 --[[
 -- Table that holds the ai module
@@ -81,8 +81,8 @@ end
 --]]
 local function minimax(board, current_player, opponent, is_max)
   if is_draw(board) then return 0 end
-  if has_winner(board, config.player_2_symbol) then return 1 end
-  if has_winner(board, config.player_1_symbol) then return -1 end
+  if has_winner(board, settings.player_2_symbol) then return 1 end
+  if has_winner(board, settings.player_1_symbol) then return -1 end
 
   if is_max then
     local best_score = -2

@@ -1,7 +1,7 @@
 local ui = require('ttt.ui')
 local board = require('ttt.board')
 local ai = require('ttt.ai')
-local config = require('ttt.config')
+local settings = require('ttt.settings')
 
 -- -------------------
 -- Tic Tac Toe game
@@ -27,9 +27,9 @@ M.new = function(self)
   local o = {
     board = board:new(),
 
-    player_1 = config.player_1_symbol,
-    player_2 = config.player_2_symbol,
-    current_player = config.player_1_symbol,
+    player_1 = settings.current.player_1_symbol,
+    player_2 = settings.current.player_2_symbol,
+    current_player = settings.current.player_1_symbol,
 
     ui = ui:new(),
 
@@ -131,7 +131,7 @@ M.start = function(self)
       if error or game:_over(game) then return end
       game:_switch_player()
 
-      if config.play_against_ai then
+      if settings.current.play_against_ai then
         game:_ai_turn(game)
         if game:_over(game) then return end
         game:_switch_player()
@@ -148,6 +148,12 @@ M.start = function(self)
       game.ui:delete_buffer()
     end,
   })
+end
+
+M.setup = function(config)
+  if config then
+    settings.set(config)
+  end
 end
 
 return M
