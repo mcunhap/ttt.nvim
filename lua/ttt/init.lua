@@ -91,14 +91,16 @@ end
 
 --[[
 -- Method to handle player turn
+-- @return: boolean indicating if there was an error
 --]]
 M._player_turn = function(self)
   local position = self.ui:get_valid_position()
-  if position.error then return end
+  if position.error then return true end
 
   local row, col = position.row, position.col
 
   self.board:update(row, col, self.current_player)
+  return false
 end
 
 --[[
@@ -124,8 +126,8 @@ M.start = function(self)
     ["<CR>"] = function()
       if game:_is_over() then return end
 
-      game:_player_turn(game)
-      if game:_over(game) then return end
+      local error = game:_player_turn(game)
+      if error or game:_over(game) then return end
       game:_switch_player()
 
       game:_ai_turn(game)
