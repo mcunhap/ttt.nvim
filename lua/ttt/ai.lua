@@ -79,48 +79,42 @@ end
 -- @is_max - boolean to indicate if the current player is the maximizer
 -- @return - the score
 --]]
-local function minimax(board, current_player, opponent, is_max)
+local function minimax(board, current_player, opponent, is_max, ai_symbol, human_symbol)
+  if has_winner(board, ai_symbol) then return 1 end
+  if has_winner(board, human_symbol) then return -1 end
   if is_draw(board) then return 0 end
-  if has_winner(board, settings.player_2_symbol) then return 1 end
-  if has_winner(board, settings.player_1_symbol) then return -1 end
 
   if is_max then
-    local best_score = -2
-
+    local best_score = -math.huge
     for i = 1, board.size do
       for j = 1, board.size do
         if board:validate_move(i, j) then
-          board.cells[i][j] = current_player
-          local score = minimax(board, opponent, current_player, false)
+          board.cells[i][j] = ai_symbol
+          local score = minimax(board, human_symbol, ai_symbol, false, ai_symbol, human_symbol)
           board.cells[i][j] = '-'
-
           if score > best_score then
             best_score = score
           end
         end
       end
     end
-
     return best_score
-  end
-
-  local best_score = 2
-
-  for i = 1, board.size do
-    for j = 1, board.size do
-      if board:validate_move(i, j) then
-        board.cells[i][j] = current_player
-        local score = minimax(board, opponent, current_player, true)
-        board.cells[i][j] = '-'
-
-        if score < best_score then
-          best_score = score
+  else
+    local best_score = math.huge
+    for i = 1, board.size do
+      for j = 1, board.size do
+        if board:validate_move(i, j) then
+          board.cells[i][j] = human_symbol
+          local score = minimax(board, ai_symbol, human_symbol, true, ai_symbol, human_symbol)
+          board.cells[i][j] = '-'
+          if score < best_score then
+            best_score = score
+          end
         end
       end
     end
+    return best_score
   end
-
-  return best_score
 end
 
 --[[
@@ -131,16 +125,17 @@ end
 -- @return - the move row and the move col
 --]]
 ai.get_move = function(self)
-  local best_score = -2
+  local best_score = -math.huge
   local best_move = { -1, -1 }
+  local ai_symbol = self.symbol
+  local human_symbol = self.opponent_symbol
 
   for i = 1, self.board.size do
     for j = 1, self.board.size do
       if self.board:validate_move(i, j) then
-        self.board.cells[i][j] = self.symbol
-        local score = minimax(self.board, self.opponent_symbol, self.symbol, false)
+        self.board.cells[i][j] = ai_symbol
+        local score = minimax(self.board, ai_symbol, human_symbol, false, ai_symbol, human_symbol)
         self.board.cells[i][j] = '-'
-
         if score > best_score then
           best_score = score
           best_move = { i, j }
@@ -149,7 +144,7 @@ ai.get_move = function(self)
     end
   end
 
-  return  best_move[1], best_move[2]
+  return best_move[1], best_move[2]
 end
 
 return ai
